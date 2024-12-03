@@ -1,0 +1,92 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "JobFinder API",
+    "description": "API documentation for JobFinder project"
+  },
+  "host": "localhost:3000",
+  "basePath": "/api",
+  "schemes": ["http"],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a user",
+        "description": "Register a new user with name, email, and password.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "email": { "type": "string" },
+                "password": { "type": "string" }
+              },
+              "required": ["name", "email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully."
+          },
+          "400": {
+            "description": "Validation error."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login a user",
+        "description": "Authenticate a user with email and password.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": { "type": "string" },
+                "password": { "type": "string" }
+              },
+              "required": ["email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User logged in successfully."
+          },
+          "401": {
+            "description": "Invalid credentials."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "password": { "type": "string" }
+      }
+    },
+    "Job": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "company": { "type": "string" },
+        "description": { "type": "string" },
+        "location": { "type": "string" },
+        "salary": { "type": "string" }
+      }
+    }
+  }
+}

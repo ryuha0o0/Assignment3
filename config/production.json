@@ -1,0 +1,7 @@
+{
+  "appName": "JobFinder",
+  "port": 80,
+  "dbUri": "mongodb+srv://<username>:<password>@cluster0.mongodb.net/jobfinder?retryWrites=true&w=majority",
+  "jwtSecret": "prodSecretKey",
+  "jwtExpiry": "7d"
+}
