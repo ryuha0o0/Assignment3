@@ -8,18 +8,15 @@ const bookmarksRoutes = require('./routes/bookmarksRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./public/swagger/swagger.json');
-const indexRouter = require('./routes/index');
-const crawlJobListings = require('./crawlers/saraminCrawler');
-const Job = require('./models/Job'); // Job 모델 가져오기
+const crawlSaramin = require('./crawlers/saraminCrawler');
+const Job = require('./models/Job');
 
 // Express 앱 초기화
 const app = express();
-
-// 미들웨어
 app.use(express.json());
 
 // 라우트 설정
-app.use('/', indexRouter);
+app.use('/', require('./routes/index'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobsRoutes);
@@ -29,12 +26,15 @@ app.use('/api/bookmarks', bookmarksRoutes);
 // 에러 핸들러
 app.use(errorHandler);
 
-// 데이터 저장 함수
+// 데이터 저장 함수 (중복 방지)
 const saveJobsToDb = async (jobs) => {
     try {
         for (const job of jobs) {
-            const newJob = new Job(job);
-            await newJob.save();
+            const existingJob = await Job.findOne({ link: job.link });
+            if (!existingJob) {
+                const newJob = new Job(job);
+                await newJob.save();
+            }
         }
         console.log('Jobs saved to database successfully!');
     } catch (error) {
@@ -51,7 +51,7 @@ connectToDatabase()
         // Saramin 크롤링 및 데이터베이스 저장
         try {
             const searchTerm = '개발자'; // 검색어
-            const jobs = await crawlJobListings(searchTerm);
+            const jobs = await crawlSaramin(searchTerm, 100); // 최소 100개 데이터
             console.log(`${jobs.length} jobs crawled successfully.`);
             await saveJobsToDb(jobs);
         } catch (error) {
