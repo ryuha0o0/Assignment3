@@ -29,10 +29,10 @@ exports.getApplicationById = async (req, res, next) => {
 // 신청 생성
 exports.createApplication = async (req, res, next) => {
     try {
-        const { jobId } = req.body;
+        const { job } = req.body;
 
         const application = new Application({
-            job: jobId,
+            job: job,
             applicant: req.user.id,
         });
 

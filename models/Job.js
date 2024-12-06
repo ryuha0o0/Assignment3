@@ -1,15 +1,54 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../utils/database');
 
-const jobSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    company: { type: String, required: true },
-    location: { type: String, required: true },
-    link: { type: String },
-    experience: { type: String, enum: ['junior', 'mid', 'senior', 'unknown'] }, // 'unknown' 추가
-    techStack: [{ type: String }],
-    views: { type: Number, default: 0 },
+const Job = sequelize.define('Job', {
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    company: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    location: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    link: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true, // 중복 방지
+    },
+    experience: {
+        type: DataTypes.STRING,
+        defaultValue: 'unknown',
+    },
+    education: {
+        type: DataTypes.STRING,
+        defaultValue: 'No education provided',
+    },
+    employmentType: {
+        type: DataTypes.STRING,
+        defaultValue: 'No employment type provided',
+    },
+    deadline: {
+        type: DataTypes.STRING,
+        defaultValue: 'No deadline provided',
+    },
+    sector: {
+        type: DataTypes.STRING,
+        defaultValue: 'No sector provided',
+    },
+    salary: {
+        type: DataTypes.STRING,
+        defaultValue: 'No salary info',
+    },
+    views: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    },
+}, {
+    timestamps: true, // createdAt, updatedAt 자동 추가
 });
-
-const Job = mongoose.model('Job', jobSchema);
 
 module.exports = Job;

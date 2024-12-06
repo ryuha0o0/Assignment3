@@ -1,23 +1,14 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../utils/database');
-const Job = require('./Job');
 const User = require('./User');
 
-const Application = sequelize.define('Application', {
+const Notification = sequelize.define('Notification', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    jobId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Job,
-            key: 'id',
-        },
-        allowNull: false,
-    },
-    applicantId: {
+    userId: {
         type: DataTypes.INTEGER,
         references: {
             model: User,
@@ -25,7 +16,23 @@ const Application = sequelize.define('Application', {
         },
         allowNull: false,
     },
-    appliedAt: {
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    message: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+    },
+    type: {
+        type: DataTypes.ENUM('System', 'JobAlert', 'Interview'),
+        defaultValue: 'System',
+    },
+    isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
@@ -33,4 +40,4 @@ const Application = sequelize.define('Application', {
     timestamps: false,
 });
 
-module.exports = Application;
+module.exports = Notification;
