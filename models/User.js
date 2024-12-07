@@ -18,6 +18,7 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
 }, {
+    tableName: 'Users',
     timestamps: false,
 });
 
@@ -29,6 +30,14 @@ User.beforeCreate(async (user) => {
 // 비밀번호 비교 메서드
 User.prototype.comparePassword = async function (password) {
     return bcrypt.compare(password, this.password);
+};
+
+// 관계 설정
+User.associate = (models) => {
+    User.hasMany(models.Application, {
+        foreignKey: 'applicantId',
+        as: 'applications', // alias 설정
+    });
 };
 
 module.exports = User;

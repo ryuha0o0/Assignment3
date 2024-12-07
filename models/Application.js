@@ -33,4 +33,16 @@ const Application = sequelize.define('Application', {
     timestamps: false,
 });
 
+// 관계 설정
+Application.associate = (models) => {
+    Application.belongsTo(models.Job, {
+        foreignKey: 'jobId',
+        as: 'job', // alias 설정
+    });
+    Application.belongsTo(models.User, {
+        foreignKey: 'applicantId',
+        as: 'applicant', // alias 설정
+    });
+};
+
 module.exports = Application;

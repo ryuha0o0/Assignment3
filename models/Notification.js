@@ -40,4 +40,7 @@ const Notification = sequelize.define('Notification', {
     timestamps: false,
 });
 
+// Ensure the alias for the user relationship is unique
+Notification.belongsTo(User, { as: 'notificationUser', foreignKey: 'userId' });
+
 module.exports = Notification;

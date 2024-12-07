@@ -6,8 +6,8 @@ exports.getAllApplications = async (req, res, next) => {
     try {
         const applications = await Application.findAll({
             include: [
-                { model: Job, attributes: ['title'] }, // Job 관계에서 'title'만 포함
-                { model: User, as: 'applicant', attributes: ['name'] }, // User 관계에서 'name'만 포함
+                { model: Job, attributes: ['title'], as: 'job' }, // Job alias 명시
+                { model: User, attributes: ['email'], as: 'applicant' }, // User alias 명시
             ],
         });
 
@@ -16,6 +16,7 @@ exports.getAllApplications = async (req, res, next) => {
         next(error);
     }
 };
+
 exports.getApplicationById = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -23,8 +24,8 @@ exports.getApplicationById = async (req, res, next) => {
         const application = await Application.findOne({
             where: { id },
             include: [
-                { model: Job, attributes: ['title'] }, // Job 관계에서 'title'만 포함
-                { model: User, as: 'applicant', attributes: ['name'] }, // User 관계에서 'name'만 포함
+                { model: Job, attributes: ['title'], as: 'job' }, // Job alias 명시
+                { model: User, attributes: ['email'], as: 'applicant' }, // User alias 명시
             ],
         });
 
@@ -37,6 +38,7 @@ exports.getApplicationById = async (req, res, next) => {
         next(error);
     }
 };
+
 exports.createApplication = async (req, res, next) => {
     try {
         const { jobId } = req.body;
@@ -51,6 +53,7 @@ exports.createApplication = async (req, res, next) => {
         next(error);
     }
 };
+
 exports.deleteApplication = async (req, res, next) => {
     try {
         const { id } = req.params;

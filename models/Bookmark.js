@@ -29,4 +29,7 @@ const Bookmark = sequelize.define('Bookmark', {
     timestamps: true,
 });
 
+// 관계 설정
+Bookmark.belongsTo(Job, { as: 'relatedJob', foreignKey: 'jobId' }); // alias 수정
+
 module.exports = Bookmark;

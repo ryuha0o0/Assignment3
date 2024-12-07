@@ -17,7 +17,7 @@ const Job = sequelize.define('Job', {
     link: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true, // 중복 방지
+        unique: true,
     },
     experience: {
         type: DataTypes.STRING,
@@ -48,7 +48,19 @@ const Job = sequelize.define('Job', {
         defaultValue: 0,
     },
 }, {
-    timestamps: true, // createdAt, updatedAt 자동 추가
+    timestamps: true,
 });
+
+// 관계 설정
+Job.associate = (models) => {
+    Job.hasMany(models.Application, {
+        foreignKey: 'jobId',
+        as: 'applications', // alias 설정
+    });
+    Job.hasMany(models.Bookmark, {
+        foreignKey: 'jobId',
+        as: 'bookmarks', // Bookmark와의 관계 설정
+    });
+};
 
 module.exports = Job;
