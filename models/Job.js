@@ -43,6 +43,10 @@ const Job = sequelize.define('Jobs', {
         type: DataTypes.DATE,
         allowNull: false, // 반드시 있어야 하는 데이터
     },
+    views: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    },
 }, {
     timestamps: true,
 });

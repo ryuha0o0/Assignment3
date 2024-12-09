@@ -8,7 +8,7 @@ const bookmarksRoutes = require('./routes/bookmarksRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./public/swagger/swagger.json');
-const crawlSaramin = require('./crawlers/saraminCrawler');
+//const crawlSaramin = require('./crawlers/saraminCrawler');
 const Job = require('./models/Job');
 const companyRoutes = require('./routes/companyRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
@@ -56,7 +56,7 @@ const filterJobFields = (job) => {
 };
 
 // 데이터 저장 함수 (중복 방지)
-const saveJobsToDb = async (jobs) => {
+/*const saveJobsToDb = async (jobs) => {
     try {
         const bulkOps = jobs.map((job) => ({
             where: { link: job.link }, // 고유 링크로 중복 방지
@@ -74,7 +74,7 @@ const saveJobsToDb = async (jobs) => {
         console.error('Error saving jobs to database:', error.message);
     }
 };
-
+*/
 // 서버 실행 및 초기화
 const PORT = process.env.PORT || 3000;
 const DEFAULT_SEARCH_TERM = process.env.DEFAULT_SEARCH_TERM || '방화벽';

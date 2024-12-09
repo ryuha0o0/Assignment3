@@ -1,29 +1,17 @@
+const { Op } = require('sequelize');
 const Job = require('../models/Job');
-const { Op } = require('sequelize'); // Sequelize의 Operator 가져오기
 
-
+// 채용 공고 전체 조회 (페이징 포함)
 exports.getAllJobs = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
-        const limit = 20;
+        const limit = parseInt(req.query.limit, 10) || 20; // 페이지당 항목 수
         const offset = (page - 1) * limit;
 
-        // 필터링 및 검색 조건
-        const where = {};
-        if (req.query.location) where.location = req.query.location;
-
-        if (req.query.search) {
-            where[Op.or] = [
-                { title: { [Op.like]: `%${req.query.search}%` } }, // 포지션 검색
-                { company: { [Op.like]: `%${req.query.search}%` } }, // 회사명 검색
-                { description: { [Op.like]: `%${req.query.search}%` } }, // 키워드 검색
-            ];
-        }
-
         const { rows: jobs, count: totalJobs } = await Job.findAndCountAll({
-            where,
             offset,
             limit,
+            order: [['postedDate', 'DESC']], // 최신순 정렬
         });
 
         res.status(200).json({
@@ -37,131 +25,94 @@ exports.getAllJobs = async (req, res, next) => {
     }
 };
 
+// ID로 채용 공고 조회
 exports.getJobById = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const job = await Job.findOne({
-            where: { id },
-        });
-
+        const job = await Job.findByPk(id);
         if (!job) {
             return res.status(404).json({ message: 'Job not found' });
         }
 
         // 조회수 증가
-        await job.increment('views', { by: 1 });
+        await job.increment('views');
 
-        // 관련 공고 추천 (같은 지역 기준)
+        // 추천 공고 (같은 지역 기준)
         const relatedJobs = await Job.findAll({
             where: {
-                id: { [Op.ne]: id }, // 현재 공고 제외
+                id: { [Op.ne]: id },
                 location: job.location,
             },
             limit: 5,
         });
 
-        res.status(200).json({
-            job,
-            relatedJobs,
-        });
+        res.status(200).json({ job, relatedJobs });
     } catch (error) {
         next(error);
     }
 };
 
+// 채용 공고 검색
 exports.searchJobs = async (req, res, next) => {
     try {
-        const { keyword } = req.query;
-        const page = parseInt(req.query.page, 10) || 1;
-        const limit = 20;
-        const offset = (page - 1) * limit;
+        const { query } = req.query;
 
-        if (!keyword) {
-            return res.status(400).json({ message: 'Keyword is required for search' });
+        if (!query) {
+            return res.status(400).json({ message: 'Search query is required.' });
         }
 
-        const { rows: jobs, count: totalJobs } = await Job.findAndCountAll({
+        const jobs = await Job.findAll({
             where: {
-                [Op.or]: [
-                    { title: { [Op.like]: `%${keyword}%` } },
-                    { company: { [Op.like]: `%${keyword}%` } },
-                    { sector: { [Op.like]: `%${keyword}%` } },
-                ],
+                title: { [Op.like]: `%${query}%` },
             },
-            offset,
-            limit,
+            order: [['postedDate', 'DESC']], // 최신순 정렬
         });
 
-        res.status(200).json({
-            page,
-            totalPages: Math.ceil(totalJobs / limit),
-            totalJobs,
-            jobs,
-        });
+        res.status(200).json(jobs);
     } catch (error) {
         next(error);
     }
 };
 
+// 채용 공고 필터링
 exports.filterJobs = async (req, res, next) => {
     try {
-        const { location, employmentType, experience, education, sector } = req.query;
-        const page = parseInt(req.query.page, 10) || 1;
-        const limit = 20;
-        const offset = (page - 1) * limit;
+        const { company, location, sector, employmentType } = req.query;
 
-        const where = {};
-        if (location) where.location = location;
-        if (employmentType) where.employmentType = employmentType;
-        if (experience) where.experience = experience;
-        if (education) where.education = education;
-        if (sector) where.sector = sector;
+        const whereClause = {};
+        if (location) whereClause.location = { [Op.eq]: location };
+        if (sector) whereClause.sector = { [Op.eq]: sector };
+        if (employmentType) whereClause.employmentType = { [Op.eq]: employmentType };
 
-        const { rows: jobs, count: totalJobs } = await Job.findAndCountAll({
-            where,
-            offset,
-            limit,
+        const jobs = await Job.findAll({
+            where: whereClause,
+            order: [['postedDate', 'DESC']],
         });
 
-        res.status(200).json({
-            page,
-            totalPages: Math.ceil(totalJobs / limit),
-            totalJobs,
-            jobs,
-        });
+        res.status(200).json(jobs);
     } catch (error) {
         next(error);
     }
 };
 
+// 채용 공고 정렬
 exports.sortJobs = async (req, res, next) => {
     try {
-        const { sortBy } = req.query;
-        const page = parseInt(req.query.page, 10) || 1;
-        const limit = 20;
-        const offset = (page - 1) * limit;
+        const { sortBy, order = 'ASC' } = req.query;
 
-        let order = [['postedDate', 'DESC']]; // 기본값: 최신순
-
-        if (sortBy === 'postedDate') {
-            order = [['postedDate', 'DESC']];
-        } else if (sortBy === 'deadline') {
-            order = [['deadline', 'ASC']];
+        const validSortFields = ['title', 'company', 'postedDate', 'views'];
+        if (!validSortFields.includes(sortBy)) {
+            return res.status(400).json({
+                message: `Invalid sort field. Valid options: ${validSortFields.join(', ')}`,
+            });
         }
 
-        const { rows: jobs, count: totalJobs } = await Job.findAndCountAll({
-            order,
-            offset,
-            limit,
+        const jobs = await Job.findAll({
+            order: [[sortBy, order.toUpperCase()]], // 정렬 순서
         });
 
-        res.status(200).json({
-            page,
-            totalPages: Math.ceil(totalJobs / limit),
-            totalJobs,
-            jobs,
-        });
+        res.status(200).json(jobs);
     } catch (error) {
         next(error);
     }

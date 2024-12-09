@@ -61,7 +61,6 @@ const crawlSaramin = async (searchTerm, maxResults = 100) => {
                 const employmentType = conditions.eq(3).text().trim() || 'No employment type provided';
                 const deadline = $(element).find('.job_date .date').text().trim() || 'No deadline provided';
                 const sector = $(element).find('.job_sector').text().trim() || 'No sector provided';
-                const salaryBadge = $(element).find('.area_badge .badge').text().trim() || 'No salary info';
 
                 // 등록일 파싱
                 const postedDateText = $(element).find('span.job_day').text().trim();
