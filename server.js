@@ -11,9 +11,11 @@ const swaggerDocument = require('./public/swagger/swagger.json');
 const crawlSaramin = require('./crawlers/saraminCrawler');
 const Job = require('./models/Job');
 const companyRoutes = require('./routes/companyRoutes');
-const resumeRoutes = require('./routes/resumeRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+
+
 
 // Express 앱 초기화
 const app = express();
@@ -27,25 +29,46 @@ app.use('/jobs', jobsRoutes);
 app.use('/applications', applicationsRoutes);
 app.use('/bookmarks', bookmarksRoutes);
 app.use('/companies', companyRoutes);
-app.use('/resumes', resumeRoutes);
 app.use('/interviews', interviewRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/tasks', taskRoutes);
+
 
 // 에러 핸들러
 app.use(errorHandler);
 
 // 데이터 저장 함수 (중복 방지)
+// 데이터 필터링 함수
+const filterJobFields = (job) => {
+    // Job 모델의 필드에 해당하는 데이터만 반환
+    return {
+        title: job.title,
+        company: job.company,
+        link: job.link,
+        location: job.location,
+        experience: job.experience,
+        education: job.education,
+        employmentType: job.employmentType,
+        deadline: job.deadline,
+        sector: job.sector,
+        salary: job.salary,
+    };
+};
+
+// 데이터 저장 함수 (중복 방지)
 const saveJobsToDb = async (jobs) => {
     try {
         const bulkOps = jobs.map((job) => ({
-            where: { link: job.link },
-            defaults: job, // 존재하지 않으면 새로 삽입
+            where: { link: job.link }, // 고유 링크로 중복 방지
+            defaults: filterJobFields(job), // 필터링된 데이터만 삽입
         }));
+
         const results = await Promise.all(
             bulkOps.map(({ where, defaults }) =>
                 Job.findOrCreate({ where, defaults })
             )
         );
+
         console.log(`Jobs saved successfully! Inserted/Updated: ${results.length}`);
     } catch (error) {
         console.error('Error saving jobs to database:', error.message);
@@ -54,7 +77,7 @@ const saveJobsToDb = async (jobs) => {
 
 // 서버 실행 및 초기화
 const PORT = process.env.PORT || 3000;
-const DEFAULT_SEARCH_TERM = process.env.DEFAULT_SEARCH_TERM || '개발자';
+const DEFAULT_SEARCH_TERM = process.env.DEFAULT_SEARCH_TERM || '방화벽';
 const DEFAULT_JOB_COUNT = parseInt(process.env.DEFAULT_JOB_COUNT, 10) || 100;
 
 connectToDatabase()

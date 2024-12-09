@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../utils/database');
 
-const Job = sequelize.define('Job', {
+const Job = sequelize.define('Jobs', {
     title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -39,13 +39,9 @@ const Job = sequelize.define('Job', {
         type: DataTypes.STRING,
         defaultValue: 'No sector provided',
     },
-    salary: {
-        type: DataTypes.STRING,
-        defaultValue: 'No salary info',
-    },
-    views: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
+    postedDate: {
+        type: DataTypes.DATE,
+        allowNull: false, // 반드시 있어야 하는 데이터
     },
 }, {
     timestamps: true,

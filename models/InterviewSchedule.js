@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../utils/database');
+const User = require('./User');
 const Application = require('./Application');
 
 const InterviewSchedule = sequelize.define('InterviewSchedule', {
@@ -35,5 +36,8 @@ const InterviewSchedule = sequelize.define('InterviewSchedule', {
 }, {
     timestamps: false,
 });
+
+User.hasMany(InterviewSchedule, { foreignKey: 'userId' });
+InterviewSchedule.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = InterviewSchedule;

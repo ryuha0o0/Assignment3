@@ -31,5 +31,7 @@ const Bookmark = sequelize.define('Bookmark', {
 
 // 관계 설정
 Bookmark.belongsTo(Job, { as: 'relatedJob', foreignKey: 'jobId' }); // alias 수정
+User.hasMany(Bookmark, { foreignKey: 'userId' });
+Bookmark.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Bookmark;
