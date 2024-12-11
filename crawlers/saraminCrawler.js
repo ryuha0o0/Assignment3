@@ -1,6 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const Job = require('../models/Job'); // Sequelize Job 모델
+const Company = require('../models/Company'); // Sequelize Job 모델
+
 
 const BASE_URL = 'https://www.saramin.co.kr';
 
@@ -127,4 +129,104 @@ const crawlSaramin = async (searchTerm, maxResults = 100) => {
     return jobs.slice(0, maxResults);
 };
 
-module.exports = crawlSaramin;
+const crawlSaraminCompanies = async (searchTerm, maxResults = 100) => {
+    const companies = [];
+    const seenEntries = new Set();
+    let page = 1;
+
+    while (companies.length < maxResults) {
+        try {
+            if (page > 5) {
+                console.log('Reached the page limit: 5. Stopping company crawl.');
+                break;
+            }
+
+            const response = await axios.get(`${BASE_URL}/zf_user/search/company`, {
+                params: {
+                    searchword: searchTerm,
+                    page,
+                },
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+                },
+            });
+
+            const $ = cheerio.load(response.data);
+
+            $('.item_corp').each((_, element) => {
+                const name = $(element).find('.corp_name a').text().trim();
+                const link = $(element).find('.corp_name a').attr('href')
+                    ? `${BASE_URL}${$(element).find('.corp_name a').attr('href')}`
+                    : null;
+                const location = $(element).find('dl:contains("기업주소") dd').text().trim();
+                const industry = $(element).find('dl:contains("업종") dd').text().trim();
+                const sales = $(element)
+                    .find('dl:contains("재무정보") li')
+                    .filter((_, li) => $(li).css('display') === 'block')
+                    .text()
+                    .trim();
+                const established = $(element).find('dl:contains("설립일") dd').text().trim();
+                const ceo = $(element).find('dl:contains("대표자명") dd').text().trim();
+
+                // 메모리 중복 체크
+                const uniqueKey = `${name}-${link}`;
+                if (seenEntries.has(uniqueKey)) return;
+
+                // 중복 제거 후 데이터 저장
+                let validEstablishedDate = null;
+                if (established && !isNaN(Date.parse(established))) {
+                    validEstablishedDate = new Date(established).toISOString();
+                }
+
+                companies.push({
+                    name,
+                    location,
+                    website: link,
+                    industry,
+                    sales,
+                    established: validEstablishedDate || null,
+                    ceo,
+                });
+
+                seenEntries.add(uniqueKey);
+            });
+
+            if ($('.item_corp').length === 0) break;
+            console.log(`Company page ${page} crawled successfully.`);
+            page++;
+        } catch (error) {
+            console.error(`Error on company page ${page}: ${error.message}`);
+            break;
+        }
+    }
+
+    // 중복 데이터 확인 후 데이터베이스 저장
+    const uniqueCompanies = [];
+    for (const company of companies) {
+        try {
+            const exists = await Company.findOne({ where: { name: company.name } });
+            if (!exists) {
+                uniqueCompanies.push(company);
+            } else {
+                console.log(`Duplicate company found in DB: ${company.name}`);
+            }
+        } catch (error) {
+            console.error(`Error checking company: ${company.name}. ${error.message}`);
+        }
+    }
+
+    try {
+        if (uniqueCompanies.length > 0) {
+            await Company.bulkCreate(uniqueCompanies, { ignoreDuplicates: true });
+            console.log(`Successfully saved ${uniqueCompanies.length} new companies.`);
+        } else {
+            console.log('No new companies to save.');
+        }
+    } catch (error) {
+        console.error(`Error saving companies: ${error.message}`);
+    }
+
+    return uniqueCompanies.slice(0, maxResults);
+};
+
+module.exports = { crawlSaramin, crawlSaraminCompanies };

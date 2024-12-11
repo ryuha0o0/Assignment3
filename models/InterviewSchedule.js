@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../utils/database');
-const User = require('./User');
-const Application = require('./Application');
 
 const InterviewSchedule = sequelize.define('InterviewSchedule', {
     id: {
@@ -11,10 +9,10 @@ const InterviewSchedule = sequelize.define('InterviewSchedule', {
     },
     applicationId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Application,
-            key: 'id',
-        },
+        allowNull: false,
+    },
+    userId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     date: {
@@ -36,8 +34,5 @@ const InterviewSchedule = sequelize.define('InterviewSchedule', {
 }, {
     timestamps: false,
 });
-
-User.hasMany(InterviewSchedule, { foreignKey: 'userId' });
-InterviewSchedule.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = InterviewSchedule;

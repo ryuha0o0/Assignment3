@@ -6,7 +6,7 @@
     "description": "API documentation for JobFinder project"
   },
   "host": "localhost:3000",
-  "basePath": "/api",
+  "basePath": "/",
   "schemes": ["http"],
   "paths": {
     "/auth/register": {
@@ -67,6 +67,115 @@
           }
         }
       }
+    },
+    "/jobs": {
+      "get": {
+        "summary": "Get jobs",
+        "description": "Retrieve a list of jobs.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of jobs.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Job"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a job",
+        "description": "Add a new job.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Job created successfully."
+          }
+        }
+      }
+    },
+    "/applications": {
+      "get": {
+        "summary": "Get applications",
+        "description": "Retrieve a list of job applications.",
+        "responses": {
+          "200": {
+            "description": "List of applications."
+          }
+        }
+      }
+    },
+    "/bookmarks": {
+      "get": {
+        "summary": "Get bookmarks",
+        "description": "Retrieve a list of bookmarked jobs.",
+        "responses": {
+          "200": {
+            "description": "List of bookmarks."
+          }
+        }
+      }
+    },
+    "/companies": {
+      "get": {
+        "summary": "Get companies",
+        "description": "Retrieve a list of companies.",
+        "responses": {
+          "200": {
+            "description": "List of companies.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/interviews": {
+      "get": {
+        "summary": "Get interviews",
+        "description": "Retrieve a list of interview schedules.",
+        "responses": {
+          "200": {
+            "description": "List of interviews."
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "Get notifications",
+        "description": "Retrieve a list of notifications.",
+        "responses": {
+          "200": {
+            "description": "List of notifications."
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "summary": "Get tasks",
+        "description": "Retrieve a list of tasks.",
+        "responses": {
+          "200": {
+            "description": "List of tasks."
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -86,6 +195,18 @@
         "description": { "type": "string" },
         "location": { "type": "string" },
         "salary": { "type": "string" }
+      }
+    },
+    "Company": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "website": { "type": "string" },
+        "industry": { "type": "string" },
+        "sales": { "type": "string" },
+        "established": { "type": "string", "format": "date" },
+        "ceo": { "type": "string" }
       }
     }
   }

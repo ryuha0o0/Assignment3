@@ -11,33 +11,29 @@ const Application = sequelize.define('Application', {
     },
     jobId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Job,
-            key: 'id',
-        },
         allowNull: false,
     },
-    appliedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    userId: { // User 모델과의 관계를 위한 외래 키
+    userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: User, // 참조할 테이블 이름
-            key: 'id', // 참조할 컬럼 이름
-        },
+    },
+    status: {
+        type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED'), // 상태 정의
+        allowNull: false,
+        defaultValue: 'PENDING', // 초기 상태
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
     },
 }, {
     timestamps: false,
 });
 
 // 관계 설정
-Application.belongsTo(Job, { as: 'relatedJob', foreignKey: 'jobId' }); // alias 수정
+Application.belongsTo(Job, { as: 'relatedJob', foreignKey: 'jobId' }); // Job과 관계 설정
+Job.hasMany(Application, { foreignKey: 'jobId', as: 'applications' }); // Job -> Applications
 
-
-// User와 Application의 관계 정의
 User.hasMany(Application, {
     foreignKey: 'userId',
     as: 'applications',
@@ -47,4 +43,5 @@ Application.belongsTo(User, {
     foreignKey: 'userId',
     as: 'user',
 });
+
 module.exports = Application;

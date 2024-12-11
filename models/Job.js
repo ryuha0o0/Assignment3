@@ -51,6 +51,7 @@ const Job = sequelize.define('Jobs', {
     timestamps: true,
 });
 
+
 // 관계 설정
 Job.associate = (models) => {
     Job.hasMany(models.Application, {

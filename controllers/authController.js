@@ -34,13 +34,19 @@ exports.register = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        // 1. 중복 이메일 확인
+        // 1. 이메일 형식 검증
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 기본 이메일 형식 검증
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+        // 2. 중복 이메일 확인
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(409).json({ message: 'Email already in use' });
         }
 
-        // 2. 사용자 생성
+        // 3. 사용자 생성
         const user = await User.create({ email, password });
 
         res.status(201).json({
@@ -51,6 +57,7 @@ exports.register = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 exports.updateProfile = async (req, res, next) => {

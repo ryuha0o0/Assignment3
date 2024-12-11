@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const Job = require('../models/Job');
 
-// 채용 공고 전체 조회 (페이징 포함)
+// 채용 공고 전체 조회 (페이징 포함, 제한된 필드만 반환)
 exports.getAllJobs = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
@@ -9,6 +9,7 @@ exports.getAllJobs = async (req, res, next) => {
         const offset = (page - 1) * limit;
 
         const { rows: jobs, count: totalJobs } = await Job.findAndCountAll({
+            attributes: ['id', 'title', 'views', 'postedDate'], // 반환할 필드만 지정
             offset,
             limit,
             order: [['postedDate', 'DESC']], // 최신순 정렬
@@ -25,30 +26,39 @@ exports.getAllJobs = async (req, res, next) => {
     }
 };
 
-// ID로 채용 공고 조회
+// ID로 채용 공고 조회 (모든 필드 반환)
 exports.getJobById = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const job = await Job.findByPk(id);
+        // 공고 상세 조회
+        const job = await Job.findByPk(id); // 모든 필드 반환
+
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            return res.status(404).json({ message: 'Job not found.' });
         }
 
         // 조회수 증가
         await job.increment('views');
 
-        // 추천 공고 (같은 지역 기준)
+        // 추천 공고 조회 (같은 지역, 직무 우선 추천)
         const relatedJobs = await Job.findAll({
+            attributes: ['id', 'title', 'location', 'company'], // 제한된 필드만 반환
             where: {
-                id: { [Op.ne]: id },
-                location: job.location,
+                id: { [Op.ne]: id }, // 현재 공고 제외
+                location: job.location, // 동일 지역
+                title: { [Op.like]: `%${job.title}%` }, // 비슷한 직무명
             },
-            limit: 5,
+            limit: 5, // 추천 공고 최대 5개
         });
 
-        res.status(200).json({ job, relatedJobs });
+        // 응답 전송
+        res.status(200).json({
+            job,
+            relatedJobs,
+        });
     } catch (error) {
+        console.error('Error fetching job details:', error);
         next(error);
     }
 };
@@ -81,9 +91,9 @@ exports.filterJobs = async (req, res, next) => {
         const { company, location, sector, employmentType } = req.query;
 
         const whereClause = {};
-        if (location) whereClause.location = { [Op.eq]: location };
-        if (sector) whereClause.sector = { [Op.eq]: sector };
-        if (employmentType) whereClause.employmentType = { [Op.eq]: employmentType };
+        if (location) whereClause.location = { [Op.like]: `%${location}%` }; // 부분 일치 검색
+        if (sector) whereClause.sector = { [Op.like]: sector };
+        if (employmentType) whereClause.employmentType = { [Op.like]: employmentType };
 
         const jobs = await Job.findAll({
             where: whereClause,
@@ -95,7 +105,6 @@ exports.filterJobs = async (req, res, next) => {
         next(error);
     }
 };
-
 // 채용 공고 정렬
 exports.sortJobs = async (req, res, next) => {
     try {

@@ -1,28 +1,76 @@
 const Bookmark = require('../models/Bookmark');
-const Job = require('../models/Job'); // Job 모델 가져오기
+const Job = require('../models/Job');
 
+// 북마크 목록 조회 (GET /bookmarks)
 exports.getBookmarks = async (req, res, next) => {
     try {
-        const bookmarks = await Bookmark.findAll({
-            where: { userId: req.user.id }, // 현재 사용자 ID 기준
-            include: [{ model: Job, as: 'relatedJob' }], // alias 추가
+        const { page = 1, limit = 10 } = req.query; // 페이지네이션 파라미터
+        const offset = (page - 1) * limit;
+
+        const bookmarks = await Bookmark.findAndCountAll({
+            where: { userId: req.user.id },
+            include: [{ model: Job, as: 'relatedJob' }],
+            order: [['createdAt', 'DESC']], // 최신순 정렬
+            limit: parseInt(limit),
+            offset,
         });
 
-        res.status(200).json(bookmarks);
+        res.status(200).json({
+            total: bookmarks.count,
+            page: parseInt(page),
+            totalPages: Math.ceil(bookmarks.count / limit),
+            bookmarks: bookmarks.rows,
+        });
     } catch (error) {
         next(error);
     }
 };
 
-// 특정 북마크 ID로 조회
-exports.getBookmarksById = async (req, res, next) => {
+// 북마크 추가/제거 (POST /bookmarks)
+exports.toggleBookmark = async (req, res, next) => {
     try {
-        const { id } = req.params; // URL에서 북마크 ID 가져오기
+        const { jobId } = req.body;
 
-        // 해당 ID의 북마크 찾기
+        // Job 유효성 확인
+        const job = await Job.findByPk(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // 기존 북마크 존재 여부 확인
+        const existingBookmark = await Bookmark.findOne({
+            where: { userId: req.user.id, jobId },
+        });
+
+        if (existingBookmark) {
+            // 북마크 삭제
+            await existingBookmark.destroy();
+            return res.status(200).json({ message: 'Bookmark removed' });
+        }
+
+        // 북마크 추가
+        const newBookmark = await Bookmark.create({
+            userId: req.user.id,
+            jobId,
+        });
+
+        res.status(201).json({
+            message: 'Bookmark added',
+            bookmark: newBookmark,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// 북마크 조회 by ID (GET /bookmarks/:id)
+exports.getBookmarkById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
         const bookmark = await Bookmark.findOne({
-            where: { id, userId: req.user.id }, // 현재 사용자 ID와 북마크 ID 기준으로 찾기
-            include: [{ model: Job }], // 북마크와 관련된 Job 모델도 포함
+            where: { id, userId: req.user.id },
+            include: [{ model: Job, as: 'relatedJob' }],
         });
 
         if (!bookmark) {
@@ -35,27 +83,13 @@ exports.getBookmarksById = async (req, res, next) => {
     }
 };
 
-exports.createBookmark = async (req, res, next) => {
-    try {
-        const { jobId } = req.body;
-
-        const bookmark = await Bookmark.create({
-            userId: req.user.id, // 현재 사용자 ID
-            jobId, // 요청에서 받은 Job ID
-        });
-
-        res.status(201).json(bookmark);
-    } catch (error) {
-        next(error);
-    }
-};
-
+// 북마크 삭제 (DELETE /bookmarks/:id)
 exports.deleteBookmark = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         const deleted = await Bookmark.destroy({
-            where: { id }, // 북마크 ID 기준 삭제
+            where: { id, userId: req.user.id },
         });
 
         if (!deleted) {
