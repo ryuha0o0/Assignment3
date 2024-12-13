@@ -1,12 +1,21 @@
 const Bookmark = require('../models/Bookmark');
 const Job = require('../models/Job');
 
-// 북마크 목록 조회 (GET /bookmarks)
+/**
+ * 북마크 목록을 조회합니다. (GET /bookmarks)
+ * @param {Object} req - 요청 객체
+ * @param {Object} req.query - 쿼리 파라미터 (page, limit)
+ * @param {Object} res - 응답 객체
+ * @param {Function} next - 다음 미들웨어 호출 함수
+ * @returns {void} - 북마크 목록 및 페이지네이션 정보 반환
+ * @throws {Error} - 서버 에러 발생 시 예외 처리 미들웨어로 전달
+ */
 exports.getBookmarks = async (req, res, next) => {
     try {
-        const { page = 1, limit = 10 } = req.query; // 페이지네이션 파라미터
-        const offset = (page - 1) * limit;
+        const { page = 1, limit = 10 } = req.query; // 페이지네이션 파라미터 기본값 설정
+        const offset = (page - 1) * limit; // 가져올 데이터의 시작 위치 계산
 
+        // 사용자 ID에 따른 북마크와 연관된 Job 데이터를 조회
         const bookmarks = await Bookmark.findAndCountAll({
             where: { userId: req.user.id },
             include: [{ model: Job, as: 'relatedJob' }],
@@ -15,6 +24,7 @@ exports.getBookmarks = async (req, res, next) => {
             offset,
         });
 
+        // 페이지네이션 정보를 포함한 응답 반환
         res.status(200).json({
             total: bookmarks.count,
             page: parseInt(page),
@@ -22,11 +32,19 @@ exports.getBookmarks = async (req, res, next) => {
             bookmarks: bookmarks.rows,
         });
     } catch (error) {
-        next(error);
+        next(error); // 에러 처리 미들웨어로 전달
     }
 };
 
-// 북마크 추가/제거 (POST /bookmarks)
+/**
+ * 북마크 추가 또는 제거를 토글합니다. (POST /bookmarks)
+ * @param {Object} req - 요청 객체
+ * @param {Object} req.body - 요청 바디 (jobId)
+ * @param {Object} res - 응답 객체
+ * @param {Function} next - 다음 미들웨어 호출 함수
+ * @returns {void} - 북마크 추가 또는 제거 결과 반환
+ * @throws {Error} - 서버 에러 발생 시 예외 처리 미들웨어로 전달
+ */
 exports.toggleBookmark = async (req, res, next) => {
     try {
         const { jobId } = req.body;
@@ -59,11 +77,19 @@ exports.toggleBookmark = async (req, res, next) => {
             bookmark: newBookmark,
         });
     } catch (error) {
-        next(error);
+        next(error); // 에러 처리 미들웨어로 전달
     }
 };
 
-// 북마크 조회 by ID (GET /bookmarks/:id)
+/**
+ * ID를 기반으로 특정 북마크를 조회합니다. (GET /bookmarks/:id)
+ * @param {Object} req - 요청 객체
+ * @param {Object} req.params - URL 파라미터 (id)
+ * @param {Object} res - 응답 객체
+ * @param {Function} next - 다음 미들웨어 호출 함수
+ * @returns {void} - 특정 북마크 반환
+ * @throws {Error} - 북마크가 없거나 서버 에러 발생 시 예외 처리 미들웨어로 전달
+ */
 exports.getBookmarkById = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -79,11 +105,19 @@ exports.getBookmarkById = async (req, res, next) => {
 
         res.status(200).json(bookmark);
     } catch (error) {
-        next(error);
+        next(error); // 에러 처리 미들웨어로 전달
     }
 };
 
-// 북마크 삭제 (DELETE /bookmarks/:id)
+/**
+ * ID를 기반으로 특정 북마크를 삭제합니다. (DELETE /bookmarks/:id)
+ * @param {Object} req - 요청 객체
+ * @param {Object} req.params - URL 파라미터 (id)
+ * @param {Object} res - 응답 객체
+ * @param {Function} next - 다음 미들웨어 호출 함수
+ * @returns {void} - 삭제 결과 반환
+ * @throws {Error} - 북마크가 없거나 서버 에러 발생 시 예외 처리 미들웨어로 전달
+ */
 exports.deleteBookmark = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -98,6 +132,6 @@ exports.deleteBookmark = async (req, res, next) => {
 
         res.status(200).json({ message: 'Bookmark deleted successfully' });
     } catch (error) {
-        next(error);
+        next(error); // 에러 처리 미들웨어로 전달
     }
 };

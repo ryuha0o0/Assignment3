@@ -1,6 +1,18 @@
 const jwtUtil = require('../utils/jwt');
 const User = require('../models/User'); // Sequelize User 모델
 
+/**
+ * 사용자 로그인 처리
+ * @function login
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.body - 요청 본문
+ * @param {string} req.body.email - 사용자의 이메일
+ * @param {string} req.body.password - 사용자의 비밀번호
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 JWT 토큰 및 사용자 정보 응답
+ * @throws {Error} 사용자 인증 실패 또는 데이터베이스 오류
+ */
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -30,6 +42,18 @@ exports.login = async (req, res, next) => {
     }
 };
 
+/**
+ * 사용자 회원가입 처리
+ * @function register
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.body - 요청 본문
+ * @param {string} req.body.email - 사용자의 이메일
+ * @param {string} req.body.password - 사용자의 비밀번호
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 등록된 사용자 정보 응답
+ * @throws {Error} 이메일 형식 오류, 중복 이메일, 또는 데이터베이스 오류
+ */
 exports.register = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -58,8 +82,18 @@ exports.register = async (req, res, next) => {
     }
 };
 
-
-
+/**
+ * 사용자 프로필 업데이트
+ * @function updateProfile
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.body - 요청 본문
+ * @param {string} [req.body.email] - 새 이메일 (선택)
+ * @param {string} [req.body.password] - 새 비밀번호 (선택)
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 업데이트된 사용자 정보 응답
+ * @throws {Error} 데이터베이스 오류 또는 유효성 검사 실패
+ */
 exports.updateProfile = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -80,6 +114,17 @@ exports.updateProfile = async (req, res, next) => {
     }
 };
 
+/**
+ * 새로운 액세스 토큰 생성
+ * @function refreshToken
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.body - 요청 본문
+ * @param {string} req.body.refreshToken - 갱신할 Refresh Token
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 새 액세스 토큰 응답
+ * @throws {Error} Refresh Token 유효성 실패 또는 데이터베이스 오류
+ */
 exports.refreshToken = async (req, res, next) => {
     try {
         const { refreshToken } = req.body;
@@ -101,6 +146,15 @@ exports.refreshToken = async (req, res, next) => {
     }
 };
 
+/**
+ * 사용자 프로필 조회
+ * @function getUserProfile
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 사용자 프로필 정보 응답
+ * @throws {Error} 데이터베이스 오류 또는 사용자 정보 없음
+ */
 exports.getUserProfile = async (req, res, next) => {
     try {
         const user = await User.findByPk(req.user.id, {
@@ -120,6 +174,15 @@ exports.getUserProfile = async (req, res, next) => {
     }
 };
 
+/**
+ * 사용자 계정 삭제
+ * @function deleteAccount
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 계정 삭제 성공 메시지 응답
+ * @throws {Error} 데이터베이스 오류 또는 사용자 정보 없음
+ */
 exports.deleteAccount = async (req, res, next) => {
     try {
         const user = await User.findByPk(req.user.id);

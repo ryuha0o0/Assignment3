@@ -1,7 +1,19 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 
-// 사용자의 모든 어플리케이션 가져오기 (상태별 필터링 및 날짜 정렬 지원)
+/**
+ * 사용자의 모든 어플리케이션 가져오기 (상태별 필터링 및 날짜 정렬 지원)
+ * @function getAllApplications
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.query - 요청 쿼리 파라미터
+ * @param {string} [req.query.status] - 필터링할 어플리케이션 상태
+ * @param {string} [req.query.sortBy='createdAt'] - 정렬 기준 필드
+ * @param {string} [req.query.order='DESC'] - 정렬 순서 ('ASC' 또는 'DESC')
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 어플리케이션 목록 응답
+ * @throws {Error} 데이터베이스 오류 또는 처리 중 오류
+ */
 exports.getAllApplications = async (req, res, next) => {
     try {
         const { status, sortBy = 'createdAt', order = 'DESC' } = req.query; // 상태 및 정렬 파라미터
@@ -28,7 +40,16 @@ exports.getAllApplications = async (req, res, next) => {
     }
 };
 
-// 특정 어플리케이션 ID로 조회
+/**
+ * 특정 어플리케이션 ID로 조회
+ * @function getApplicationById
+ * @param {Object} req - Express 요청 객체
+ * @param {string} req.params.id - 어플리케이션 ID
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 어플리케이션 데이터 응답
+ * @throws {Error} 데이터베이스 오류 또는 처리 중 오류
+ */
 exports.getApplicationById = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -49,7 +70,18 @@ exports.getApplicationById = async (req, res, next) => {
     }
 };
 
-// 새로운 어플리케이션 생성
+/**
+ * 새로운 어플리케이션 생성
+ * @function createApplication
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} req.body - 요청 본문
+ * @param {number} req.body.jobId - 지원할 채용 공고 ID
+ * @param {string} [req.body.resumeUrl] - 지원자의 이력서 URL (선택)
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 생성된 어플리케이션 응답
+ * @throws {Error} 데이터베이스 오류 또는 처리 중 오류
+ */
 exports.createApplication = async (req, res, next) => {
     try {
         const { jobId, resumeUrl } = req.body;
@@ -85,7 +117,16 @@ exports.createApplication = async (req, res, next) => {
     }
 };
 
-// 어플리케이션 삭제
+/**
+ * 어플리케이션 삭제
+ * @function deleteApplication
+ * @param {Object} req - Express 요청 객체
+ * @param {string} req.params.id - 삭제할 어플리케이션 ID
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - Express 다음 미들웨어 함수
+ * @returns {void} 반환값 없음, JSON 형식으로 삭제 성공 메시지 응답
+ * @throws {Error} 데이터베이스 오류 또는 처리 중 오류
+ */
 exports.deleteApplication = async (req, res, next) => {
     try {
         const { id } = req.params;
