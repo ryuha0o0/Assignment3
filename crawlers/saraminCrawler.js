@@ -160,31 +160,17 @@ const crawlSaraminCompanies = async (searchTerm, maxResults = 100) => {
                     : null;
                 const location = $(element).find('dl:contains("기업주소") dd').text().trim();
                 const industry = $(element).find('dl:contains("업종") dd').text().trim();
-                const sales = $(element)
-                    .find('dl:contains("재무정보") li')
-                    .filter((_, li) => $(li).css('display') === 'block')
-                    .text()
-                    .trim();
-                const established = $(element).find('dl:contains("설립일") dd').text().trim();
                 const ceo = $(element).find('dl:contains("대표자명") dd').text().trim();
 
                 // 메모리 중복 체크
                 const uniqueKey = `${name}-${link}`;
                 if (seenEntries.has(uniqueKey)) return;
 
-                // 중복 제거 후 데이터 저장
-                let validEstablishedDate = null;
-                if (established && !isNaN(Date.parse(established))) {
-                    validEstablishedDate = new Date(established).toISOString();
-                }
-
                 companies.push({
                     name,
                     location,
                     website: link,
                     industry,
-                    sales,
-                    established: validEstablishedDate || null,
                     ceo,
                 });
 

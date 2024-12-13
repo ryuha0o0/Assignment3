@@ -2,143 +2,219 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "JobFinder API",
-    "description": "API documentation for JobFinder project"
+    "title": "Job Management API",
+    "description": "API documentation based on the Assignment3 project specifications."
   },
-  "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
-    "/auth/register": {
-      "post": {
-        "summary": "Register a user",
-        "description": "Register a new user with name, email, and password.",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": { "type": "string" },
-                "email": { "type": "string" },
-                "password": { "type": "string" }
-              },
-              "required": ["name", "email", "password"]
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User registered successfully."
-          },
-          "400": {
-            "description": "Validation error."
-          }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "summary": "Login a user",
-        "description": "Authenticate a user with email and password.",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": { "type": "string" },
-                "password": { "type": "string" }
-              },
-              "required": ["email", "password"]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User logged in successfully."
-          },
-          "401": {
-            "description": "Invalid credentials."
-          }
-        }
-      }
-    },
-    "/jobs": {
+    "/tasks": {
       "get": {
-        "summary": "Get jobs",
-        "description": "Retrieve a list of jobs.",
-        "parameters": [],
+        "summary": "Get All Tasks",
+        "description": "Retrieve all tasks for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of jobs.",
+            "description": "List of tasks.",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Job"
+                "$ref": "#/definitions/Task"
               }
             }
           }
         }
       },
       "post": {
-        "summary": "Create a job",
-        "description": "Add a new job.",
+        "summary": "Create Task",
+        "description": "Create a new task for the authenticated user.",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Job"
+              "$ref": "#/definitions/Task"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Job created successfully."
+            "description": "Task created successfully.",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
           }
         }
       }
     },
-    "/applications": {
+    "/tasks/{id}": {
       "get": {
-        "summary": "Get applications",
-        "description": "Retrieve a list of job applications.",
+        "summary": "Get Task by ID",
+        "description": "Retrieve a specific task by ID for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the task to retrieve.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of applications."
+            "description": "Task details.",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "404": {
+            "description": "Task not found or access denied."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Task",
+        "description": "Update a specific task by ID for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the task to update.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task updated successfully.",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          },
+          "404": {
+            "description": "Task not found or access denied."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Task",
+        "description": "Delete a specific task by ID for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the task to delete.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Task deleted successfully."
+          },
+          "404": {
+            "description": "Task not found or access denied."
           }
         }
       }
     },
-    "/bookmarks": {
+    "/notifications": {
       "get": {
-        "summary": "Get bookmarks",
-        "description": "Retrieve a list of bookmarked jobs.",
-        "responses": {
-          "200": {
-            "description": "List of bookmarks."
+        "summary": "Get Notifications",
+        "description": "Retrieve all notifications for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
           }
-        }
-      }
-    },
-    "/companies": {
-      "get": {
-        "summary": "Get companies",
-        "description": "Retrieve a list of companies.",
+        ],
         "responses": {
           "200": {
-            "description": "List of companies.",
+            "description": "List of notifications.",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Company"
+                "$ref": "#/definitions/Notification"
               }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Notification",
+        "description": "Create a new notification for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Notification created successfully.",
+            "schema": {
+              "$ref": "#/definitions/Notification"
             }
           }
         }
@@ -146,67 +222,532 @@
     },
     "/interviews": {
       "get": {
-        "summary": "Get interviews",
-        "description": "Retrieve a list of interview schedules.",
+        "summary": "Get All Interviews",
+        "description": "Retrieve all interview schedules for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of interviews."
+            "description": "List of interview schedules.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Interview"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Interview",
+        "description": "Create a new interview schedule for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Interview"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Interview schedule created successfully.",
+            "schema": {
+              "$ref": "#/definitions/Interview"
+            }
           }
         }
       }
     },
-    "/notifications": {
-      "get": {
-        "summary": "Get notifications",
-        "description": "Retrieve a list of notifications.",
+    "/auth/login": {
+      "post": {
+        "summary": "User Login",
+        "description": "Authenticate a user and return a JWT token.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of notifications."
+            "description": "Login successful.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password."
           }
         }
       }
     },
-    "/tasks": {
-      "get": {
-        "summary": "Get tasks",
-        "description": "Retrieve a list of tasks.",
+    "/auth/register": {
+      "post": {
+        "summary": "User Registration",
+        "description": "Register a new user.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email format or missing data."
+          },
+          "409": {
+            "description": "Email already in use."
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Refresh Token",
+        "description": "Generate a new access token using a refresh token.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "refreshToken"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of tasks."
+            "description": "New access token generated.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "accessToken": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refresh token is required."
+          },
+          "404": {
+            "description": "User not found."
           }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "summary": "Get User Profile",
+        "description": "Retrieve the authenticated user's profile.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "email": { "type": "string", "format": "email" },
+                "createdAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      }
+    },
+    "/auth/delete": {
+      "delete": {
+        "summary": "Delete Account",
+        "description": "Delete the authenticated user's account.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      }
+    },
+    "/applications": {
+      "get": {
+        "summary": "Get All Applications",
+        "description": "Retrieve all applications for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of applications.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Application"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Application",
+        "description": "Create a new application for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Application created successfully.",
+            "schema": {
+              "$ref": "#/definitions/Application"
+            }
+          }
+        }
+      }
+    },
+    "/applications/{id}": {
+      "get": {
+        "summary": "Get Application by ID",
+        "description": "Retrieve a specific application by ID for the authenticated user.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the application to retrieve.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application details.",
+            "schema": {
+              "$ref": "#/definitions/Application"
+            }
+          },
+          "404": {
+            "description": "Application not found."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Application",
+        "description": "Delete a specific application by ID for the authenticated user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the application to delete.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Application deleted successfully."
+          },
+          "404": {
+            "description": "Application not found."
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "summary": "Get All Jobs",
+        "description": "Retrieve a list of all available jobs.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of jobs retrieved successfully.",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Job" }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{id}": {
+      "get": {
+        "summary": "Get Job by ID",
+        "description": "Retrieve a specific job posting by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job retrieved successfully.",
+            "schema": { "$ref": "#/definitions/Job" }
+          },
+          "404": { "description": "Job not found." }
         }
       }
     }
   },
   "definitions": {
-    "User": {
+    "Application": {
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
-        "email": { "type": "string" },
-        "password": { "type": "string" }
+        "id": { "type": "integer" },
+        "jobId": { "type": "integer", "description": "ID of the job." },
+        "userId": { "type": "integer", "description": "ID of the user." },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED"],
+          "description": "Current status of the application."
+        },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation." }
+      }
+    },
+    "ApplicationCreate": {
+      "type": "object",
+      "properties": {
+        "jobId": { "type": "integer", "description": "ID of the job to apply for." },
+        "resumeUrl": { "type": "string", "description": "URL of the resume." }
+      },
+      "required": ["jobId"]
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "title": { "type": "string", "description": "Title of the task." },
+        "isCompleted": { "type": "boolean", "description": "Completion status of the task." },
+        "dueDate": { "type": "string", "format": "date-time", "description": "Due date of the task." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "title": { "type": "string", "description": "Title of the notification." },
+        "message": { "type": "string", "description": "Content of the notification." },
+        "isRead": { "type": "boolean", "description": "Whether the notification has been read." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Interview": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "applicationId": { "type": "integer" },
+        "userId": { "type": "integer" },
+        "date": { "type": "string", "format": "date-time" },
+        "location": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["Scheduled", "Completed", "Canceled"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
       }
     },
     "Job": {
       "type": "object",
       "properties": {
-        "title": { "type": "string" },
-        "company": { "type": "string" },
-        "description": { "type": "string" },
-        "location": { "type": "string" },
-        "salary": { "type": "string" }
+        "id": { "type": "integer", "description": "ID of the job." },
+        "title": { "type": "string", "description": "Title of the job." },
+        "company": { "type": "string", "description": "Name of the company offering the job." },
+        "location": { "type": "string", "description": "Location of the job." },
+        "link": { "type": "string", "description": "URL to the job posting.", "format": "url" },
+        "experience": { "type": "string", "description": "Required experience for the job." },
+        "education": { "type": "string", "description": "Education requirements." },
+        "employmentType": { "type": "string", "description": "Type of employment." },
+        "deadline": { "type": "string", "description": "Deadline for the job application." },
+        "sector": { "type": "string", "description": "Sector of the job." },
+        "postedDate": { "type": "string", "format": "date-time", "description": "Date the job was posted." },
+        "views": { "type": "integer", "description": "Number of views for the job posting." }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "email": { "type": "string", "format": "email", "description": "Email address of the user." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of user account creation." }
+      }
+    },
+    "Bookmark": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "jobId": { "type": "integer", "description": "ID of the bookmarked job." },
+        "userId": { "type": "integer", "description": "ID of the user who bookmarked the job." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the job was bookmarked." }
       }
     },
     "Company": {
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
-        "location": { "type": "string" },
-        "website": { "type": "string" },
-        "industry": { "type": "string" },
-        "sales": { "type": "string" },
-        "established": { "type": "string", "format": "date" },
-        "ceo": { "type": "string" }
+        "id": { "type": "integer", "description": "ID of the company." },
+        "name": { "type": "string", "description": "Name of the company." },
+        "location": { "type": "string", "description": "Location of the company." },
+        "website": { "type": "string", "format": "url", "description": "Company website URL." },
+        "industry": { "type": "string", "description": "Industry the company operates in." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of company creation." }
       }
     }
   }

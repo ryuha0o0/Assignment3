@@ -48,7 +48,6 @@ const filterJobFields = (job) => {
         employmentType: job.employmentType,
         deadline: job.deadline,
         sector: job.sector,
-        salary: job.salary,
     };
 };
 
@@ -58,10 +57,8 @@ const filterCompanyFields = (company) => {
         name: company.name,
         location: company.location,
         website: company.website,
-        established: company.established,
         ceo: company.ceo,
         industry: company.industry,
-        sales: company.sales,
     };
 };
 

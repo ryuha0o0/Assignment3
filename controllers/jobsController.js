@@ -92,8 +92,8 @@ exports.filterJobs = async (req, res, next) => {
 
         const whereClause = {};
         if (location) whereClause.location = { [Op.like]: `%${location}%` }; // 부분 일치 검색
-        if (sector) whereClause.sector = { [Op.like]: sector };
-        if (employmentType) whereClause.employmentType = { [Op.like]: employmentType };
+        if (sector) whereClause.sector = { [Op.like]: `%${sector}%` };
+        if (employmentType) whereClause.employmentType = { [Op.like]: `%${employmentType}%` };
 
         const jobs = await Job.findAll({
             where: whereClause,

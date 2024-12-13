@@ -31,10 +31,6 @@ const Company = sequelize.define('Company', {
         type: DataTypes.STRING, // 업종
         allowNull: true,
     },
-    sales: {
-        type: DataTypes.STRING, // 매출 정보
-        allowNull: true,
-    },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
