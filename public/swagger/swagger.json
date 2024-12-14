@@ -10,30 +10,124 @@
     "http"
   ],
   "paths": {
+    "/companies": {
+      "get": {
+        "summary": "Get All Companies",
+        "description": "Retrieve the list of all companies.",
+        "responses": {
+          "200": {
+            "description": "Companies retrieved successfully.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Company",
+        "description": "Add a new company to the database.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Company"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Company added successfully.",
+            "schema": {
+              "$ref": "#/definitions/Company"
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/companies/{id}": {
+      "get": {
+        "summary": "Get Company by ID",
+        "description": "Retrieve details of a specific company by its ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the company."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Company details retrieved successfully.",
+            "schema": {
+              "$ref": "#/definitions/Company"
+            }
+          },
+          "404": {
+            "description": "Company not found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Company",
+        "description": "Delete a specific company by its ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the company."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Company deleted successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Company deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company not found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/bookmarks": {
       "get": {
         "summary": "Get Bookmarks",
         "description": "Retrieve the list of bookmarks for the authenticated user with pagination.",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number (optional, default: 1).",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Number of items per page (optional, default: 10).",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10
-            }
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
           }
         ],
         "responses": {
@@ -42,51 +136,68 @@
             "schema": {
               "type": "object",
               "properties": {
-                "total": {
-                  "type": "integer"
-                },
-                "page": {
-                  "type": "integer"
-                },
-                "totalPages": {
-                  "type": "integer"
-                },
+                "total": { "type": "integer" },
+                "page": { "type": "integer" },
+                "totalPages": { "type": "integer" },
                 "bookmarks": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer"
-                      },
-                      "jobId": {
-                        "type": "integer"
-                      },
-                      "userId": {
-                        "type": "integer"
-                      },
-                      "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "relatedJob": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "title": {
-                            "type": "string"
-                          },
-                          "company": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
+                    "$ref": "#/definitions/Bookmark"
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Toggle Bookmark",
+        "description": "Add or remove a bookmark for a specific job.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "jobId": { "type": "integer" }
+              },
+              "required": ["jobId"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Bookmark added successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Bookmark added" },
+                "bookmark": { "$ref": "#/definitions/Bookmark" }
+              }
+            }
+          },
+          "200": {
+            "description": "Bookmark removed successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Bookmark removed" }
+              }
+            }
+          },
+          "404": {
+            "description": "Job not found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -98,64 +209,32 @@
         "description": "Retrieve details of a specific bookmark by its ID.",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the bookmark (required).",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the bookmark."
           }
         ],
         "responses": {
           "200": {
             "description": "Bookmark details retrieved successfully.",
-
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "jobId": {
-                      "type": "integer"
-                    },
-                    "userId": {
-                      "type": "integer"
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "relatedJob": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "company": {
-                          "type": "string"
-                        }
-                      }
-                    }
-
-              }
+            "schema": {
+              "$ref": "#/definitions/Bookmark"
             }
           },
           "404": {
             "description": "Bookmark not found.",
-
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-                  }
-                }
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -164,39 +243,37 @@
         "description": "Delete a specific bookmark by its ID.",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the bookmark (required).",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "type": "string",
+            "description": "Bearer token for authentication."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the bookmark."
           }
         ],
         "responses": {
           "200": {
             "description": "Bookmark deleted successfully.",
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Bookmark deleted successfully"
+                }
               }
             }
           },
           "404": {
             "description": "Bookmark not found.",
-              "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-
-                }
-
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -1051,6 +1128,19 @@
     }
   },
   "definitions": {
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "example": 400
+        },
+        "message": {
+          "type": "string",
+          "example": "Validation failed."
+        }
+      }
+    },
     "Application": {
       "type": "object",
       "properties": {
