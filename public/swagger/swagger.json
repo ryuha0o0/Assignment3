@@ -10,6 +10,198 @@
     "http"
   ],
   "paths": {
+    "/bookmarks": {
+      "get": {
+        "summary": "Get Bookmarks",
+        "description": "Retrieve the list of bookmarks for the authenticated user with pagination.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (optional, default: 1).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page (optional, default: 10).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookmarks retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer"
+                },
+                "page": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "bookmarks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "jobId": {
+                        "type": "integer"
+                      },
+                      "userId": {
+                        "type": "integer"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "relatedJob": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "company": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookmarks/{id}": {
+      "get": {
+        "summary": "Get Bookmark by ID",
+        "description": "Retrieve details of a specific bookmark by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the bookmark (required).",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookmark details retrieved successfully.",
+
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "jobId": {
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "type": "integer"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "relatedJob": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "company": {
+                          "type": "string"
+                        }
+                      }
+                    }
+
+              }
+            }
+          },
+          "404": {
+            "description": "Bookmark not found.",
+
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Bookmark",
+        "description": "Delete a specific bookmark by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the bookmark (required).",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookmark deleted successfully.",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+
+              }
+            }
+          },
+          "404": {
+            "description": "Bookmark not found.",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+
+                }
+
+            }
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "summary": "Get All Tasks",
@@ -604,22 +796,54 @@
     "/jobs": {
       "get": {
         "summary": "Get All Jobs",
-        "description": "Retrieve a list of all available jobs.",
+        "description": "Retrieve a paginated list of all job postings with limited fields.",
         "parameters": [
           {
             "name": "page",
-            "in": "path",
-            "required": true,
-            "type": "integer"
+            "in": "query",
+            "required": false,
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (default: 20)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of jobs retrieved successfully.",
-            "schema": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/Job" }
-            }
+            "description": "Jobs retrieved successfully.",
+              "schema": {
+                "example": {
+                  "page": 1,
+                  "totalPages": 10,
+                  "totalJobs": 200,
+                  "jobs": [
+                    {
+                      "id": 1,
+                      "title": "Software Engineer",
+                      "views": 150,
+                      "postedDate": "2024-12-01T10:00:00Z"
+                    },
+                    {
+                      "id": 2,
+                      "title": "Data Scientist",
+                      "views": 200,
+                      "postedDate": "2024-12-02T10:00:00Z"
+                    }
+                  ]
+                }
+              }
+
           }
         }
       }
@@ -627,21 +851,201 @@
     "/jobs/{id}": {
       "get": {
         "summary": "Get Job by ID",
-        "description": "Retrieve a specific job posting by ID.",
+        "description": "Retrieve detailed information about a specific job posting.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "integer"
+            "description": "ID of the job posting.",
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Job retrieved successfully.",
-            "schema": { "$ref": "#/definitions/Job" }
+            "schema": {
+              "example":{
+                "job": {
+                  "id": 1,
+                  "title": "Software Engineer",
+                  "company": "TechCorp",
+                  "location": "San Francisco, CA",
+                  "link": "https://example.com/job/1",
+                  "experience": "2+ years",
+                  "education": "Bachelor's degree",
+                  "employmentType": "Full-time",
+                  "deadline": "2024-12-31",
+                  "sector": "Technology",
+                  "postedDate": "2024-12-01T10:00:00Z",
+                  "views": 150
+                },
+                "relatedJobs": [
+                  {
+                    "id": 2,
+                    "title": "Data Scientist",
+                    "location": "San Francisco, CA",
+                    "company": "DataWorks"
+                  },
+                  {
+                    "id": 3,
+                    "title": "Backend Developer",
+                    "location": "San Francisco, CA",
+                    "company": "WebSolutions"
+                  }
+                ]
+              }
+            }
           },
-          "404": { "description": "Job not found." }
+          "404": {
+            "description": "Job not found."
+          }
+        }
+      }
+    },
+    "/jobs/search": {
+      "get": {
+        "summary": "Search Jobs",
+        "description": "Search for job postings by title.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Search keyword for job titles.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs retrieved successfully.",
+              "schema": {
+                "example": [
+                  {
+                    "id": 91,
+                    "title": "[카메라 시스템] 카메라 광학 시스템 제작 및 응용 SW개발",
+                    "company": "하이퍼그램 주식회사",
+                    "location": "대전 유성구",
+                    "link": "https://www.saramin.co.kr/zf_user/jobs/relay/view",
+                    "experience": "신입",
+                    "education": "대졸↑",
+                    "employmentType": "정규직",
+                    "deadline": "~ 12/31(화)",
+                    "sector": "영상처리, 이미지프로세싱",
+                    "postedDate": "2024-12-11T00:00:00Z",
+                    "views": 0
+                  }
+                ]
+              }
+
+          },
+          "400": {
+            "description": "Search query is required."
+          }
+        }
+      }
+    },
+    "/jobs/filter": {
+      "get": {
+        "summary": "Filter Jobs",
+        "description": "Filter job postings based on various criteria.",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Filter by location.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "required": false,
+            "description": "Filter by job sector.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "employmentType",
+            "in": "query",
+            "required": false,
+            "description": "Filter by employment type.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs retrieved successfully.",
+              "schema": {
+                "example": [
+                  {
+                    "id": 1,
+                    "title": "Software Engineer",
+                    "company": "TechCorp",
+                    "location": "San Francisco, CA",
+                    "postedDate": "2024-12-01T10:00:00Z"
+                  }
+                ]
+              }
+
+          }
+        }
+      }
+    },
+    "/jobs/sort": {
+      "get": {
+        "summary": "Sort Jobs",
+        "description": "Sort job postings based on specified fields.",
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": true,
+            "description": "Field to sort by (e.g., title, company, postedDate, views).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "Sort order (ASC or DESC, default: ASC).",
+            "schema": {
+              "type": "string",
+              "default": "ASC"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs sorted successfully.",
+              "schema": {
+                "example": [
+                  {
+                    "id": 2,
+                    "title": "Data Scientist",
+                    "company": "DataWorks",
+                    "location": "San Francisco, CA",
+                    "postedDate": "2024-12-02T10:00:00Z",
+                    "views": 200
+                  }
+                ]
+              }
+
+          },
+          "400": {
+            "description": "Invalid sort field."
+          }
         }
       }
     }
