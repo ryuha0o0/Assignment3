@@ -1,11 +1,11 @@
 # 프로젝트: Job Management API
 
 이 프로젝트는 다양한 API를 제공하여 사용자들이 회사 정보, 북마크, 작업 지원, 인터뷰 일정을 효율적으로 관리할 수 있도록 돕습니다.
-http://113.198.66.75:17082/api-docs/ 에서 테스트해 볼 수 있습니다.
-Authorization 칸에는 'Bearer <토큰>' 형식으로 입력해주세요 Header가 Authorization: Bearer <토큰> 형식이 되어야 합니다.
+*http://113.198.66.75:17082/api-docs/ 에서 테스트해 볼 수 있습니다.*
+-Authorization 칸에는 'Bearer <토큰>' 형식으로 입력해주세요 Header가 Authorization: Bearer <토큰> 형식이 되어야 합니다.
 예시 : -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyIiwiaWF0IjoxNzM0MjM4MzM3LCJleHAiOjE3MzQzMjQ3Mzd9.uUhEEL8cZQnJSR3_M54vxGpgdi9jV7OWl200WEhrp9I"
 
-
+문의 사항: tothfl1564@gmail.com
 
 ## 주요 API 목록
 
