@@ -49,6 +49,11 @@ node server.js
 npm start
 ```
 
+*크롤링은 node server.js 실행 시 자동으로 진행됩니다. 원치 않으시면 
+server.js 에서 
+const { crawlSaramin, crawlSaraminCompanies } = require('./crawlers/saraminCrawler'); 
+부분을 주석처리 해주세요*
+
 ## 기술 스택
 
 - **Node.js**
